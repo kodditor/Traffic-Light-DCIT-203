@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
-import { AND } from './logic';
+import { AND, OR } from './logic';
 
 function TrafficLight({P0, P1, direction}){
 	// States are such that
@@ -9,11 +9,11 @@ function TrafficLight({P0, P1, direction}){
 	// Green = 3
 	if (direction == 'NS'){
 
-		let R = P1 				// P1
-		let Y = AND(!P1, P0)	// P1'.P0
-		let G = AND(!P1, !P0) 	// P1'.P0'
+		let R = P0 				// P1
+		let Y = AND(!P0, P1)	// P1'.P0
+		let G = AND(!P0, !P1) 	// P1'.P0'
 
-		console.log('NS: ',R,Y,G)
+		//console.log('NS: ',R,Y,G)
 
 		return (
 			<div className='w-full flex flex-col items-center md:gap-4 p-4 bg-gray-300'>
@@ -24,12 +24,11 @@ function TrafficLight({P0, P1, direction}){
 		)
 	} else {
 
-		let R = !P1 			// P1'
-		let Y = AND(P1, P0) 	// P1.P0
-		let G = AND(P1, !P0) 	// P1.P0'
+		let R = !P0 			// P0'
+		let Y = AND(P0, P1) 	// P0.P1
+		let G = AND(P0, !P1) 	// P1.P0'
 
-		console.log('EW: ', R,Y,G)
-		
+		//console.log('EW: ', R,Y,G)
 
 		return (
 			<div className='w-full flex flex-col items-center md:gap-4 p-4 bg-gray-300'>
@@ -49,26 +48,31 @@ function App() {
 	const [timer, setTimer] = useState(0)
 	const timerRef = useRef();
 
+	let period = 6
+
 	function updateTimer(){
-		let newTimer;
-		let newP0;
-		let newP1;
-		if(timer == 6){
-			newP0 = 0
-			newP1 = 1
-		} else if(timer == 12){
-			newP0 = 1;
-			newP1 = 0
-		} else if(timer == 18){
-			newP0 = 1
-			newP1 = 1
-		} else {
-			newP0 = P0
-			newP1 = P1
-		}
+		let newTimer, newP0, newP1;
+		let modTimer = timer % period
+		let stateValues = {
+			0: [0, 0],
+			1: [0, 1],
+			2: [1, 0],
+			3: [1, 1]
+		 }
+		
+		if(modTimer != 0){}
+		else {
+			let stateVal = (timer/period).toFixed(0)
+			stateVal = stateVal % 4 
+
+			newP0 = stateValues[stateVal][0]
+			newP1 = stateValues[stateVal][1]
+			
+			setP0(newP0)
+			setP1(newP1)
+		} 
+
 		newTimer = timer + 1
-		setP0(newP0)
-		setP1(newP1)
 		setTimer(newTimer)
 	}
 
@@ -93,16 +97,18 @@ function App() {
 					<TrafficLight direction={'EW'} P0={P0} P1={P1}/>
 				</div>
 			</section>
+			<section className='m-auto flex flex-col gap-3'>
+				<span>
+					<h4>Variables</h4>
+				</span>
+				<span className='flex flex-col gap-2 items-center'>
+					<h4><span className='font-bold'>Timer:</span> {timer}s</h4>
+					<h4><span className='font-bold'>P0:</span> {P0}</h4>
+					<h4><span className='font-bold'>P1:</span> {P1}</h4>
+				</span>
+			</section>
 			<section>
 				Table?
-			</section>
-			<section className='flex flex-col gap-3'>
-				<span>
-					<h4>Controls</h4>
-				</span>
-				<span>
-					<h4>Timer: {timer}s</h4>
-				</span>
 			</section>
 		</main>
 	);
